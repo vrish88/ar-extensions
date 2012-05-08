@@ -180,11 +180,12 @@ module ActiveRecord::Extensions
       if val.is_a?( Array )
         match_data = key.to_s.match( NOT_EQUAL_RGX )
         key = match_data.captures[0] if match_data
-        str = "#{caller.quoted_table_name}.#{caller.connection.quote_column_name( key )} " +
-          (match_data ? 'NOT ' : '') + "IN( ? )"
+        table_name = key.to_s =~ /\./ ? key : caller.quoted_table_name
+        str = "#{table_name}.#{caller.connection.quote_column_name( key )} " + (match_data ? 'NOT ' : '') + "IN( ? )"
         return Result.new( str, val )
       end
       nil
+
     end
     
   end
