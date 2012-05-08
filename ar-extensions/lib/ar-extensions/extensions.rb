@@ -177,11 +177,10 @@ module ActiveRecord::Extensions
     NOT_EQUAL_RGX = /(.+)_(ne|not|not_in)/
     
     def self.process( key, val, caller )
-      if val.is_a?( Array )
+      if val.is_a?( Array ) && !key.to_s =~ /\./
         match_data = key.to_s.match( NOT_EQUAL_RGX )
         key = match_data.captures[0] if match_data
-        table_name = key.to_s =~ /\./ ? key : caller.quoted_table_name
-        str = "#{table_name}.#{caller.connection.quote_column_name( key )} " + (match_data ? 'NOT ' : '') + "IN( ? )"
+        str = "#{caller.quoted_table_name}.#{caller.connection.quote_column_name( key )} " + (match_data ? 'NOT ' : '') + "IN( ? )"
         return Result.new( str, val )
       end
       nil
